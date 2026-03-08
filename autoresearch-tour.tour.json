@@ -1,0 +1,220 @@
+{
+  "id": "autoresearch-onboarding",
+  "title": "Autoresearch: Autonomous AI Hyperparameter Tuning",
+  "description": "A guided tour of the autoresearch framework — an autonomous AI research system that lets an LLM agent run hyperparameter experiments on GPT pretraining overnight",
+  "version": "1.0.0",
+  "audience": "New Users & AI Assistants",
+  "prerequisites": [
+    "Basic understanding of neural network training",
+    "Familiarity with Python and PyTorch"
+  ],
+  "steps": [
+    {
+      "id": "step-1-overview",
+      "title": "Welcome to Autoresearch",
+      "description": "Autoresearch is a minimalist framework for autonomous AI research. The idea: give an LLM agent a GPT training setup, let it modify hyperparameters and architecture, run 5-minute experiments, measure improvements, and repeat — autonomously — overnight. When you wake up, you get a log of experiments and a potentially better model.\n\nThe entire codebase is intentionally tiny: just 3 files that matter. This simplicity is a feature, not a limitation.",
+      "estimatedTime": 30,
+      "focusDirectory": "",
+      "colorMode": "fileTypes"
+    },
+    {
+      "id": "step-2-three-files",
+      "title": "The Three Files That Matter",
+      "description": "The core of autoresearch is just three files with clearly separated responsibilities:\n\n• prepare.py (blue) — Immutable data infrastructure. Downloads training data, trains a tokenizer, and provides evaluation utilities. The agent cannot modify this.\n\n• train.py (green) — The agent's playground. Contains the full GPT model, optimizer, and training loop. This is the ONLY file the agent modifies during experiments.\n\n• program.md (amber) — The agent's instruction manual. Defines the autonomous experimentation loop, rules, and output format. Human-editable to steer the research direction.",
+      "estimatedTime": 60,
+      "focusDirectory": "",
+      "highlightLayers": [
+        {
+          "id": "immutable-infra",
+          "name": "Data Infrastructure (immutable)",
+          "color": "#3b82f6",
+          "items": [
+            { "path": "prepare.py", "type": "file" }
+          ],
+          "opacity": 0.8,
+          "renderStrategy": "border"
+        },
+        {
+          "id": "agent-playground",
+          "name": "Agent Playground (modifiable)",
+          "color": "#10b981",
+          "items": [
+            { "path": "train.py", "type": "file" }
+          ],
+          "opacity": 0.8,
+          "renderStrategy": "border"
+        },
+        {
+          "id": "agent-instructions",
+          "name": "Agent Instructions",
+          "color": "#f59e0b",
+          "items": [
+            { "path": "program.md", "type": "file" }
+          ],
+          "opacity": 0.8,
+          "renderStrategy": "border"
+        }
+      ],
+      "colorMode": "fileTypes",
+      "interactiveActions": [
+        {
+          "type": "click-file",
+          "description": "Click prepare.py to see the immutable data pipeline",
+          "target": "prepare.py"
+        },
+        {
+          "type": "click-file",
+          "description": "Click train.py to see the GPT model and training loop",
+          "target": "train.py"
+        }
+      ]
+    },
+    {
+      "id": "step-3-prepare",
+      "title": "Data Pipeline: prepare.py",
+      "description": "prepare.py is the fixed foundation that the agent builds on. It handles:\n\n• Data downloading — Fetches parquet shards from the climbmix-400b-shuffle dataset on Hugging Face with retry logic\n• Tokenizer training — Trains a BPE tokenizer (8192 vocab, GPT-4 style patterns) using rustbpe\n• Dataloader — BOS-aligned document packing with 100% utilization (no padding waste)\n• Evaluation — evaluate_bpb() computes bits-per-byte on a pinned validation shard, giving a vocab-size-independent ground truth metric\n\nKey constants: MAX_SEQ_LEN=2048, TIME_BUDGET=300s (5 min), VOCAB_SIZE=8192. These are immutable constraints the agent works within.",
+      "estimatedTime": 60,
+      "focusDirectory": "",
+      "highlightLayers": [
+        {
+          "id": "prepare-highlight",
+          "name": "Data Pipeline",
+          "color": "#3b82f6",
+          "items": [
+            { "path": "prepare.py", "type": "file" }
+          ],
+          "opacity": 0.8,
+          "renderStrategy": "fill"
+        }
+      ],
+      "colorMode": "fileTypes",
+      "interactiveActions": [
+        {
+          "type": "click-file",
+          "description": "Click prepare.py to explore the data pipeline code",
+          "target": "prepare.py"
+        }
+      ]
+    },
+    {
+      "id": "step-4-train",
+      "title": "The GPT Model & Training: train.py",
+      "description": "train.py is the single file the agent modifies. It contains a complete GPT implementation:\n\n• GPTConfig — Model dimensions (depth, heads, embedding size, window pattern)\n• CausalSelfAttention — Multi-head attention with grouped query attention, value embeddings (ResFormer), input-dependent gates, RoPE, and Flash Attention 3\n• MLP — Feed-forward with squared ReLU activation\n• Block/GPT — Full transformer with dynamic residual routing (resid/x0 lambdas) and logit softcap\n\nThe optimizer is MuonAdamW — a hybrid combining Muon (polar express orthogonalization for matrix params) with AdamW (for embeddings and scalars). All hyperparameters are exposed at the top of the file for easy agent discovery.",
+      "estimatedTime": 90,
+      "focusDirectory": "",
+      "highlightLayers": [
+        {
+          "id": "train-highlight",
+          "name": "Model & Training",
+          "color": "#10b981",
+          "items": [
+            { "path": "train.py", "type": "file" }
+          ],
+          "opacity": 0.8,
+          "renderStrategy": "fill"
+        }
+      ],
+      "colorMode": "fileTypes",
+      "interactiveActions": [
+        {
+          "type": "click-file",
+          "description": "Click train.py to explore the GPT model and optimizer",
+          "target": "train.py"
+        }
+      ]
+    },
+    {
+      "id": "step-5-program",
+      "title": "The Autonomous Loop: program.md",
+      "description": "program.md defines how the AI agent operates as an autonomous researcher. The loop:\n\n1. Read current state (git log, train.py)\n2. Hypothesize a change (architecture tweak, hyperparameter adjustment)\n3. Modify train.py and commit\n4. Run the experiment: uv run train.py (5-minute budget)\n5. Parse results (val_bpb, VRAM usage)\n6. If improved → keep commit, advance branch\n7. If not improved → git reset, try something else\n8. NEVER STOP — repeat indefinitely until interrupted\n\nResults are logged to results.tsv with columns: commit, val_bpb, memory_gb, status, description. This enables ~100 experiments per 8-hour overnight session.",
+      "estimatedTime": 60,
+      "focusDirectory": "",
+      "highlightLayers": [
+        {
+          "id": "program-highlight",
+          "name": "Agent Instructions",
+          "color": "#f59e0b",
+          "items": [
+            { "path": "program.md", "type": "file" }
+          ],
+          "opacity": 0.8,
+          "renderStrategy": "fill"
+        }
+      ],
+      "colorMode": "fileTypes",
+      "interactiveActions": [
+        {
+          "type": "click-file",
+          "description": "Click program.md to read the agent's full instructions",
+          "target": "program.md"
+        }
+      ]
+    },
+    {
+      "id": "step-6-analysis",
+      "title": "Analyzing Results",
+      "description": "After the agent finishes (or is interrupted), use analysis.ipynb to review outcomes:\n\n• Load results.tsv and count experiment outcomes (keep/discard/crash rates)\n• Plot val_bpb over time with a running-best line\n• List all kept improvements with their BPB deltas\n• Generate summary statistics and save progress.png\n\nThe analysis notebook and progress visualization help you understand which experiments worked, how much each improved the model, and what patterns emerge across runs.",
+      "estimatedTime": 45,
+      "focusDirectory": "",
+      "highlightLayers": [
+        {
+          "id": "analysis-highlight",
+          "name": "Analysis & Visualization",
+          "color": "#8b5cf6",
+          "items": [
+            { "path": "analysis.ipynb", "type": "file" },
+            { "path": "progress.png", "type": "file" }
+          ],
+          "opacity": 0.8,
+          "renderStrategy": "fill"
+        }
+      ],
+      "colorMode": "fileTypes",
+      "interactiveActions": [
+        {
+          "type": "click-file",
+          "description": "Click analysis.ipynb to see the post-experiment analysis notebook",
+          "target": "analysis.ipynb"
+        }
+      ]
+    },
+    {
+      "id": "step-7-getting-started",
+      "title": "Getting Started",
+      "description": "Ready to run autoresearch? Here's the quick start:\n\n1. Install dependencies: uv sync\n2. Prepare data: uv run prepare.py (downloads shards, trains tokenizer)\n3. Test manually: uv run train.py (one 5-minute experiment)\n4. Launch the agent: point your LLM at program.md and let it run\n\nThe project requires an NVIDIA GPU and Python 3.10+. Dependencies are managed via pyproject.toml and uv.lock. Notable forks exist for macOS and MLX if you're on Apple Silicon.\n\nDesign philosophy: single file modification, fixed time budgets, metric-driven decisions, and zero human intervention during runs.",
+      "estimatedTime": 30,
+      "focusDirectory": "",
+      "highlightLayers": [
+        {
+          "id": "config-highlight",
+          "name": "Configuration & Setup",
+          "color": "#ec4899",
+          "items": [
+            { "path": "pyproject.toml", "type": "file" },
+            { "path": "README.md", "type": "file" },
+            { "path": ".python-version", "type": "file" }
+          ],
+          "opacity": 0.7,
+          "renderStrategy": "border"
+        }
+      ],
+      "colorMode": "fileTypes",
+      "interactiveActions": [
+        {
+          "type": "click-file",
+          "description": "Click README.md for the full documentation",
+          "target": "README.md"
+        },
+        {
+          "type": "explore",
+          "description": "Explore the codebase on your own!"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "author": "Claude",
+    "createdAt": "2026-03-08",
+    "tags": ["onboarding", "architecture", "autonomous-research", "llm-training"]
+  }
+}
