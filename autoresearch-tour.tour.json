@@ -20,7 +20,7 @@
     {
       "id": "step-2-three-files",
       "title": "The Three Files That Matter",
-      "description": "The core of autoresearch is just three files with clearly separated responsibilities:\n\n• prepare.py — Immutable data infrastructure. Downloads training data, trains a tokenizer, and provides evaluation utilities. The agent cannot modify this.\n\n• train.py — The agent's playground. Contains the full GPT model, optimizer, and training loop. This is the ONLY file the agent modifies during experiments.\n\n• program.md — The agent's instruction manual. Defines the autonomous experimentation loop, rules, and output format. Human-editable to steer the research direction.",
+      "description": "The core of autoresearch is just three files:\n\n• prepare.py — Immutable data infrastructure. The agent cannot modify this.\n• train.py — The agent's playground. The ONLY file modified during experiments.\n• program.md — The agent's instruction manual. Human-editable to steer research.",
       "estimatedTime": 60,
       "focusDirectory": "",
       "highlightLayers": [
@@ -72,7 +72,7 @@
     {
       "id": "step-3-prepare",
       "title": "Data Pipeline: prepare.py",
-      "description": "prepare.py is the fixed foundation that the agent builds on. It handles:\n\n• Data downloading — Fetches parquet shards from the climbmix-400b-shuffle dataset on Hugging Face with retry logic\n• Tokenizer training — Trains a BPE tokenizer using rustbpe\n• Dataloader — BOS-aligned document packing with 100% utilization (no padding waste)\n• Evaluation — Computes bits-per-byte on a pinned validation shard, giving a vocab-size-independent ground truth metric",
+      "description": "prepare.py is the fixed foundation the agent builds on. It downloads training data, trains a tokenizer, assembles batches, and evaluates model quality using bits-per-byte — the ground truth metric for all experiments.",
       "estimatedTime": 60,
       "focusDirectory": "",
       "highlightLayers": [
@@ -126,7 +126,7 @@
     {
       "id": "step-5-program",
       "title": "The Autonomous Loop: program.md",
-      "description": "program.md defines how the AI agent operates as an autonomous researcher. The loop:\n\n1. Read current state (git log, train.py)\n2. Hypothesize a change (architecture tweak, hyperparameter adjustment)\n3. Modify train.py and commit\n4. Run the experiment: uv run train.py (5-minute budget)\n5. Parse results (val_bpb, VRAM usage)\n6. If improved - keep commit, advance branch\n7. If not improved - git reset, try something else\n8. NEVER STOP — repeat indefinitely until interrupted\n\nResults are logged to results.tsv. This enables ~100 experiments per 8-hour overnight session.",
+      "description": "program.md defines the autonomous experiment loop:\n\n1. Modify train.py and commit\n2. Run a 5-minute experiment\n3. Evaluate results\n4. If improved - keep. If not - revert and try something else.\n\nThe agent repeats this indefinitely, logging results to results.tsv. This enables ~100 experiments per overnight session.",
       "estimatedTime": 60,
       "focusDirectory": "",
       "highlightLayers": [
@@ -153,7 +153,7 @@
     {
       "id": "step-6-analysis",
       "title": "Analyzing Results",
-      "description": "After the agent finishes (or is interrupted), use analysis.ipynb to review outcomes:\n\n• Load results.tsv and count experiment outcomes (keep/discard/crash rates)\n• Plot val_bpb over time with a running-best line\n• List all kept improvements with their BPB deltas\n• Generate summary statistics and save progress.png\n\nThe analysis notebook and progress visualization help you understand which experiments worked, how much each improved the model, and what patterns emerge across runs.",
+      "description": "After the agent stops, use analysis.ipynb to review what happened. It plots model quality over time, lists every improvement, and saves a progress visualization to progress.png.",
       "estimatedTime": 45,
       "focusDirectory": "",
       "highlightLayers": [
@@ -181,7 +181,7 @@
     {
       "id": "step-7-getting-started",
       "title": "Getting Started",
-      "description": "Ready to run autoresearch? Here's the quick start:\n\n1. Install dependencies: uv sync\n2. Prepare data: uv run prepare.py (downloads shards, trains tokenizer)\n3. Test manually: uv run train.py (one 5-minute experiment)\n4. Launch the agent: point your LLM at program.md and let it run\n\nThe project requires an NVIDIA GPU and Python 3.10+. Dependencies are managed via pyproject.toml and uv.lock. Notable forks exist for macOS and MLX if you're on Apple Silicon.\n\nDesign philosophy: single file modification, fixed time budgets, metric-driven decisions, and zero human intervention during runs.",
+      "description": "Quick start:\n\n1. uv sync (install dependencies)\n2. uv run prepare.py (download data)\n3. uv run train.py (test one experiment)\n4. Point your LLM at program.md and let it run\n\nRequires an NVIDIA GPU and Python 3.10+. Forks exist for macOS and MLX.",
       "estimatedTime": 30,
       "focusDirectory": "",
       "highlightLayers": [
