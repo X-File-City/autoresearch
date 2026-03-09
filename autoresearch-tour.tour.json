@@ -99,7 +99,7 @@
     {
       "id": "step-4-train",
       "title": "The GPT Model & Training: train.py",
-      "description": "train.py is the single file the agent modifies. It contains a complete GPT implementation with multi-head attention, RoPE, Flash Attention 3, and dynamic residual routing.\n\nThe optimizer is MuonAdamW — a hybrid combining Muon for matrix params with AdamW for embeddings and scalars. All hyperparameters are exposed at the top of the file for easy agent discovery.",
+      "description": "train.py is the single file the agent modifies. It contains a complete GPT implementation with multi-head attention, RoPE, Flash Attention 3, and dynamic residual routing.\n\nThe optimizer is Muon Adam W — a hybrid combining Muon for matrix params with Adam W for embeddings and scalars. All hyperparameters are exposed at the top of the file for easy agent discovery.",
       "estimatedTime": 90,
       "focusDirectory": "",
       "highlightLayers": [
@@ -181,7 +181,7 @@
     {
       "id": "step-7-getting-started",
       "title": "Getting Started",
-      "description": "Quick start:\n\n1. uv sync (install dependencies)\n2. uv run prepare.py (download data)\n3. uv run train.py (test one experiment)\n4. Point your LLM at program.md and let it run\n\nRequires an NVIDIA GPU and Python 3.10+. Forks exist for macOS and MLX.",
+      "description": "Quick start:\n\n1. uv sync (install dependencies)\n2. uv run prepare.py (download data)\n3. uv run train.py (test one experiment)\n4. Point your LLM at program.md and let it run.\n\nRequires an NVIDIA GPU and Python 3.10+. Forks exist for macOS and MLX.",
       "estimatedTime": 30,
       "focusDirectory": "",
       "highlightLayers": [
