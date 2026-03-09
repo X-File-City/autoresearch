@@ -99,7 +99,7 @@
     {
       "id": "step-4-train",
       "title": "The GPT Model & Training: train.py",
-      "description": "train.py is the single file the agent modifies. It contains a complete GPT implementation with multi-head attention, RoPE, Flash Attention 3, and dynamic residual routing.\n\nThe optimizer is Muon Adam W — a hybrid combining Muon for matrix params with Adam W for embeddings and scalars. All hyperparameters are exposed at the top of the file for easy agent discovery.",
+      "description": "train.py is the single file the agent modifies. It contains a complete GPT implementation with multi-head attention, RoPE, Flash Attention 3, and dynamic residual routing.\n\nThe optimizer is a hybrid called Muon Adam W. It uses Muon for matrix params and Adam W for embeddings and scalars. All hyperparameters are exposed at the top of the file for easy agent discovery.",
       "estimatedTime": 90,
       "focusDirectory": "",
       "highlightLayers": [
@@ -126,7 +126,7 @@
     {
       "id": "step-5-program",
       "title": "The Autonomous Loop: program.md",
-      "description": "program.md defines the autonomous experiment loop:\n\n1. Modify train.py and commit\n2. Run a 5-minute experiment\n3. Evaluate results\n4. If improved - keep. If not - revert and try something else.\n\nThe agent repeats this indefinitely, logging results to results.tsv. This enables ~100 experiments per overnight session.",
+      "description": "program.md defines the autonomous experiment loop:\n\n1. Modify train.py and commit.\n2. Run a 5-minute experiment\n3. Evaluate results\n4. If improved - keep. If not - revert and try something else.\n\nThe agent repeats this indefinitely, logging results to results.tsv. This enables ~100 experiments per overnight session.",
       "estimatedTime": 60,
       "focusDirectory": "",
       "highlightLayers": [
@@ -181,7 +181,7 @@
     {
       "id": "step-7-getting-started",
       "title": "Getting Started",
-      "description": "Quick start:\n\n1. uv sync (install dependencies)\n2. uv run prepare.py (download data)\n3. uv run train.py (test one experiment)\n4. Point your LLM at program.md and let it run.\n\nRequires an NVIDIA GPU and Python 3.10+. Forks exist for macOS and MLX.",
+      "description": "Quick start:\n\n1. uv sync (install dependencies)\n2. uv run prepare.py (download data)\n3. uv run train.py (test one experiment).\n4. Point your LLM at program.md and let it run.\n\nRequires an NVIDIA GPU and Python 3.10+. Forks exist for macOS and MLX.",
       "estimatedTime": 30,
       "focusDirectory": "",
       "highlightLayers": [
