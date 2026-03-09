@@ -20,7 +20,7 @@
     {
       "id": "step-2-three-files",
       "title": "The Three Files That Matter",
-      "description": "The core of autoresearch is just three files with clearly separated responsibilities:\n\n• prepare.py (blue) — Immutable data infrastructure. Downloads training data, trains a tokenizer, and provides evaluation utilities. The agent cannot modify this.\n\n• train.py (green) — The agent's playground. Contains the full GPT model, optimizer, and training loop. This is the ONLY file the agent modifies during experiments.\n\n• program.md (amber) — The agent's instruction manual. Defines the autonomous experimentation loop, rules, and output format. Human-editable to steer the research direction.",
+      "description": "The core of autoresearch is just three files with clearly separated responsibilities:\n\n• prepare.py — Immutable data infrastructure. Downloads training data, trains a tokenizer, and provides evaluation utilities. The agent cannot modify this.\n\n• train.py — The agent's playground. Contains the full GPT model, optimizer, and training loop. This is the ONLY file the agent modifies during experiments.\n\n• program.md — The agent's instruction manual. Defines the autonomous experimentation loop, rules, and output format. Human-editable to steer the research direction.",
       "estimatedTime": 60,
       "focusDirectory": "",
       "highlightLayers": [
@@ -72,7 +72,7 @@
     {
       "id": "step-3-prepare",
       "title": "Data Pipeline: prepare.py",
-      "description": "prepare.py is the fixed foundation that the agent builds on. It handles:\n\n• Data downloading — Fetches parquet shards from the climbmix-400b-shuffle dataset on Hugging Face with retry logic\n• Tokenizer training — Trains a BPE tokenizer (8192 vocab, GPT-4 style patterns) using rustbpe\n• Dataloader — BOS-aligned document packing with 100% utilization (no padding waste)\n• Evaluation — evaluate_bpb() computes bits-per-byte on a pinned validation shard, giving a vocab-size-independent ground truth metric\n\nKey constants: MAX_SEQ_LEN=2048, TIME_BUDGET=300s (5 min), VOCAB_SIZE=8192. These are immutable constraints the agent works within.",
+      "description": "prepare.py is the fixed foundation that the agent builds on. It handles:\n\n• Data downloading — Fetches parquet shards from the climbmix-400b-shuffle dataset on Hugging Face with retry logic\n• Tokenizer training — Trains a BPE tokenizer using rustbpe\n• Dataloader — BOS-aligned document packing with 100% utilization (no padding waste)\n• Evaluation — Computes bits-per-byte on a pinned validation shard, giving a vocab-size-independent ground truth metric",
       "estimatedTime": 60,
       "focusDirectory": "",
       "highlightLayers": [
@@ -99,7 +99,7 @@
     {
       "id": "step-4-train",
       "title": "The GPT Model & Training: train.py",
-      "description": "train.py is the single file the agent modifies. It contains a complete GPT implementation:\n\n• GPTConfig — Model dimensions (depth, heads, embedding size, window pattern)\n• CausalSelfAttention — Multi-head attention with grouped query attention, value embeddings (ResFormer), input-dependent gates, RoPE, and Flash Attention 3\n• MLP — Feed-forward with squared ReLU activation\n• Block/GPT — Full transformer with dynamic residual routing (resid/x0 lambdas) and logit softcap\n\nThe optimizer is MuonAdamW — a hybrid combining Muon (polar express orthogonalization for matrix params) with AdamW (for embeddings and scalars). All hyperparameters are exposed at the top of the file for easy agent discovery.",
+      "description": "train.py is the single file the agent modifies. It contains a complete GPT implementation with multi-head attention, RoPE, Flash Attention 3, and dynamic residual routing.\n\nThe optimizer is MuonAdamW — a hybrid combining Muon for matrix params with AdamW for embeddings and scalars. All hyperparameters are exposed at the top of the file for easy agent discovery.",
       "estimatedTime": 90,
       "focusDirectory": "",
       "highlightLayers": [
